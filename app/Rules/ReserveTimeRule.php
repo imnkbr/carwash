@@ -3,7 +3,7 @@
 namespace App\Rules;
 
 use Closure;
-use App\Models\CarWash;
+use App\Models\ReserveTime;
 use Illuminate\Support\Carbon;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Validator;
@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Validator;
 
 class ReserveTimeRule implements ValidationRule
 {
-    private $carwashes;
+    private $timee;
 
     public function __construct()
     {
-        $this->carwashes = CarWash::all();
+        $this->timee = ReserveTime::all();
     }
     /**
      * Run the validation rule.
@@ -33,7 +33,7 @@ class ReserveTimeRule implements ValidationRule
         // Separate date and time components
         $date = date('Y-m-d', $timestamp); // Format: YYYY-MM-DD
 
-        $time = date('H:i:s', $timestamp); // Format: HH:MM:SS
+        $timee = date('H:i:s', $timestamp); // Format: HH:MM:SS
 
         $now = date('Y-m-d',strtotime(now()));
 
@@ -42,13 +42,13 @@ class ReserveTimeRule implements ValidationRule
                 $fail("The date must be today or future.");
             }
             // Time validation rules
-        if ($time < '09:00' || $time > '21:00')
+        if ($timee < '09:00' || $timee > '21:00')
             {
-                $fail("The time must be between 09:00 and");
+                $fail("The time must be between 09:00 and 21:00");
             }
 
 
-        $carWash = CarWash::where(function ($query) use ($value) {
+        $time = ReserveTime::where(function ($query) use ($value) {
             $givenCarbon = Carbon::parse($value);
 
             $query->where(function ($subQuery) use ($givenCarbon) {
@@ -64,7 +64,7 @@ class ReserveTimeRule implements ValidationRule
             })
             ->first();
 
-            if ($carWash) {
+            if ($time) {
                 // The given datetime falls within the range of start_time and end_time
                 // Do something here...
                 $fail('reserved time already exists');

@@ -2,12 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\ShopDates;
-use App\Rules\ShopWorkingHours;
-use App\Rules\ReserveTimeRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ValidationRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,11 +22,8 @@ class ValidationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|unique:car_washes',
-            'phonenumber' => 'required|unique:car_washes|regex:/^[0-9]{11}$/',
-            'washtype' => 'required',
-            'start_time' => ['required', new ReserveTimeRule],
-            'end_time' => [new ReserveTimeRule]
+            'email' => 'required|email',
+            'password' => 'required',
         ];
     }
 }

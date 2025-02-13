@@ -2,61 +2,36 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory;
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    protected $table= 'users';
+
+    protected $fillable = [
+        'name', 'email', 'password', 'role_id'
+    ];
+
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
-
-    protected $table = 'users';
-
-    protected $primaryKey = 'id';
-
-    public $timestamps = true;
-
-    protected $fillable = ['role_id', 'name' , 'phone_number' , 'email' , 'password'];
 
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
 
-    public function assignRole($role)
+    public function isHost()
     {
-        return $this->role()->save(
-            Role::where('name', $role)->firstOrFail()
-        );
+        return $this->role_id === 1;
     }
 
-    public function reserveTimes()
+    public function residences()
     {
-        return $this->hasMany(ReserveTime::class);
+        return $this->hasMany(Residence::class);
     }
-
-
-    
 }

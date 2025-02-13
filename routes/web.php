@@ -2,10 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\ReserveTimeController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\HostController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\LoginController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -17,81 +20,37 @@ use App\Http\Controllers\AdminController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('/',[UserController::class,'index'])->name('home');
 
-Route::get('/register',[AuthController::class,'register'])->name('register');
-
-Route::post('/register',[AuthController::class,'registeration']);
-
-/* Route::get('/reserve-time/{code}', [CarWashController::class, 'addReservation'])->name('reserve-time'); */
+// صفحه اصلی و جستجو
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/search', [HomeController::class, 'search'])->name('search');
+Route::post('/logout', [HomeController::class, 'logout'])->name('logout');
 
 
-
-Route::get('/login',[AuthController::class,'login'])->name('login');
-
-Route::post('/login',[AuthController::class,'loginRequest']);
-
-Route::middleware('user')->group(function () {
-    Route::get('/reservation',[ReserveTimeController::class,'reservation'])->name('reserve');
-
-    Route::post('/reservation',[ReserveTimeController::class,'addReservation']);
-
-    Route::get('/details/{id}',[UserController::class,'showDetails'])->name('details');
-
-    Route::get('/details/{user_id}/edit/{time_id}',[UserController::class,'editDetails'])->name('edit');
-
-    Route::put('/details/{user_id}/{time_id}',[UserController::class,'update'])->name('update');
-
-    Route::delete('/details/{id}', [UserController::class , 'destroy'])->name('destroy');
-
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-    // Other routes...;
-});
-Route::middleware('admin')->group(function () {
-    Route::get('/admin', [AdminController::class,'index']);
-
-    Route::get('/reservedtimes', [AdminController::class,'reservedTimes'])->name('reservedTimes');
-
-    Route::get('/reservedtimes', [AdminController::class,'reservedTimesFilter'])->name('reservedTimes');
-
-    Route::get('/users', [AdminController::class,'userDetails']);
-
-    Route::get('/washtypes',[AdminController::class,'washType'])->name('washtype');
-
-    Route::get('/washtypes/add',[AdminController::class,'addWashType'])->name('addwashtype');
-
-    Route::post('/washtypes/add',[AdminController::class,'createWashType']);
-
-    Route::get('/washtypes/{id}/edit',[AdminController::class,'editWashType'])->name('edit');
-
-    Route::put('/details/{id}',[AdminController::class,'updateWashType'])->name('update');
-
-    Route::delete('/details/{id}', [AdminController::class , 'destroy'])->name('destroy');
-
-
-
-
-
-
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+// رزرو فوری
+Route::middleware(['auth'])->group(function () {
+    Route::post('/reserve/{residence}', [ReservationController::class, 'store'])->name('reserve');
 });
 
 
+// استعلام کاربران
+Route::middleware(['auth'])->group(function () {
+    Route::get('/inquiries', [InquiryController::class, 'hostInquiries'])->name('inquiries');
+    Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
+    Route::patch('/inquiries/{inquiry}/approve', [InquiryController::class, 'approve'])->name('inquiries.approve');
+});
 
-/* Route::get('reservation',[CarWashController::class,'reservation'])->middleware('user'); */
+// پنل میزبان
+Route::middleware(['auth', 'host'])->prefix('host')->group(function () {
+    Route::get('/dashboard', [HostController::class, 'dashboard'])->name('host.dashboard');
+    Route::get('/residences/create', [HostController::class, 'create'])->name('host.residences.create');
+    Route::post('/residences', [HostController::class, 'store'])->name('host.residences.store');
+    Route::delete('/dashboard/{reserves}', [HostController::class, 'destroy'])->name('residences.destroy');
+    Route::post('/logout', [HostController::class, 'logout'])->name('logout');
+});
 
-/* Route::get('login/{id}' , [CarWashController::class , 'showDetails'])->name('login');
-
-
-Route::get('/login/{code}/edit',[CarWashController::class , 'editDetails'])->name('edit');
-
-Route::put('login/{code}' , [CarWashController::class , 'update'])->name('login');
-
-Route::delete('/login/{id}', [CarWashController::class , 'destroy'])->name('posts.destroy');
-
-Route::post('login/', [CarWashController::class , 'loginRequest'])->name('loginreq');;
- */
+// احراز هویت
 
 
-
-
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login');

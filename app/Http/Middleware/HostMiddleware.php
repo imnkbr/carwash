@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserMiddleware
+class HostMiddleware
 {
     /**
      * Handle an incoming request.
@@ -15,10 +15,10 @@ class UserMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() and auth()->user()->role_id == 1) {
+        if (auth()->check() && auth()->user()->role->name === 'host') {
             return $next($request);
         }
 
-        return redirect()->route('login');
+        return redirect('/')->with('error', 'دسترسی غیرمجاز!');
     }
 }
